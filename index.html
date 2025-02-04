@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management API</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        line-height: 1.6;
+        margin: 20px auto; /* Center horizontally */
+        width: 80%; /* Set width */
+        max-width: 960px; /* Optional: Set a maximum width */
+        color: #333;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: #2c3e50;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      code {
+        font-family: monospace;
+        background-color: #f9f9f9;
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+
+      .endpoint {
+        margin-bottom: 10px;
+      }
+
+      .endpoint-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .parameter {
+        margin-bottom: 5px;
+      }
+
+      .response {
+        margin-bottom: 10px;
+      }
+
+      .response-code {
+        font-weight: bold;
+      }
+
+      .error-response {
+        color: #c0392b;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 30px; /* Add some spacing above the footer */
+        padding: 10px 0;
+        border-top: 1px solid #eee; /* Add a subtle top border */
+        color: #777; /* Slightly lighter text color for the footer */
+      }
+
+      footer a {
+        color: #3498db; /* Example link color */
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>User Management API</h1>
+
+    <p>
+      This API provides endpoints for managing users using Express and Prisma.
+    </p>
+
+    <h2>Endpoints</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Route</th>
+          <th>Method</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/users</code></td>
+          <td><code>GET</code></td>
+          <td>Retrieves a list of users (with filtering).</td>
+        </tr>
+        <tr>
+          <td><code>/users/:id</code></td>
+          <td><code>GET</code></td>
+          <td>Retrieves a single user by ID.</td>
+        </tr>
+        <tr>
+          <td><code>/users</code></td>
+          <td><code>POST</code></td>
+          <td>Creates a new user.</td>
+        </tr>
+        <tr>
+          <td><code>/users/:id</code></td>
+          <td><code>PUT</code></td>
+          <td>Updates an existing user.</td>
+        </tr>
+        <tr>
+          <td><code>/users/:id</code></td>
+          <td><code>DELETE</code></td>
+          <td>Deletes a user.</td>
+        </tr>
+        <tr>
+          <td><code>/</code></td>
+          <td><code>GET</code></td>
+          <td>Welcome route.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="endpoint">
+      <div class="endpoint-title">GET /users</div>
+      <p>
+        Retrieves a list of users. Supports filtering by name, email, or phone
+        number.
+      </p>
+      <div class="parameter">
+        <strong>Parameters (Query):</strong>
+        <ul>
+          <li>
+            <code>name</code> (string, optional): Filters users by name
+            (case-insensitive, partial match).
+          </li>
+          <li>
+            <code>email</code> (string, optional): Filters users by email
+            (case-insensitive, partial match).
+          </li>
+          <li>
+            <code>phoneNumber</code> (string, optional): Filters users by phone
+            number (partial match).
+          </li>
+        </ul>
+      </div>
+      <div class="response">
+        <div class="response-code">200 OK</div>
+        <p>Returns an array of user objects (JSON):</p>
+        <pre><code>[
+  {
+    "id": "cll4mwkfz0000000000000000",
+    "name": "John Doe",
+    "email": "[email address removed]",
+    "phoneNumber": "123-456-7890"
+  },
+  // ...
+]</code></pre>
+      </div>
+      <div class="response error-response">
+        <div class="response-code">500 Internal Server Error</div>
+        <p>Error retrieving users:</p>
+        <pre><code>{
+  "error": "Failed to get users"
+}</code></pre>
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2025 Aly Olaia. View my work on
+      <a href="https://github.com/OlaiaAly" target="_blank">GitHub</a> and
+      <a href="https://www.facebook.com/alitoolaia" target="_blank">Facebook</a
+      >.
+    </footer>
+  </body>
+</html>
