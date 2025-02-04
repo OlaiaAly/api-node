@@ -6,8 +6,5 @@
       "use": "@vercel/node"
     }
   ],
-  "scripts": {
-    "build": "prisma generate && npm run build:function"
-  },
   "routes": [{ "src": "/(.*)", "dest": "index.js" }]
 }
