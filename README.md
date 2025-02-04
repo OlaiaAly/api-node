@@ -8,9 +8,9 @@ A simple REST API built with Node.js, Prisma, and Axios, focused on managing a U
 
 Before running the project, ensure you have the following installed:
 
-- Node.js (version X or higher - specify a version if important)
-- npm (Node Package Manager) or yarn
-- A database (e.g., PostgreSQL, MySQL, SQLite - specify which one you used)
+- Node.js Node.js v22.12.0+
+- npm (Node Package Manager)
+- A database MongoDB
 
 ### Installation
 1.  Clone the repository:
