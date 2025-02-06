@@ -10,6 +10,10 @@ app.use(bodyParser.json()); // For parsing JSON request bodies
 
 const PORT = process.env.APP_PORT || 3000;
 
+app.get("/", (req, res) => {
+  res.redirect("/auth"); // 302 Found (default)
+});
+
 // Mount authentication routes
 app.use("/auth", authRoutes);
 
