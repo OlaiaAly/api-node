@@ -14,7 +14,7 @@ const PORT = process.env.APP_PORT || 3000;
 app.use("/auth", authRoutes);
 
 // Mount protected routes (after authentication middleware)
-app.use("/users", userRoutes, authenticateToken);
+app.use("/users", authenticateToken, userRoutes);
 
 /**
  * @description Start the server.

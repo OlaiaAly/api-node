@@ -1,228 +1,88 @@
-# Node.js API
-
-A simple REST API built with Node.js, Prisma, and Axios, focused on managing a User table. This project serves as a practical exercise in API development, database interaction, and external API consumption.
-
-## Getting Started
-
-### Prerequisites
-
-Before running the project, ensure you have the following installed:
-
-- Node.js Node.js v22.12.0+
-- npm (Node Package Manager)
-- A database MongoDB
-
-### Installation
-
-1.  Clone the repository:
-
-    ```bash
-    git clone [https://github.com/OlaiaAly/api-node.git](https://github.com/OlaiaAly/api-node.git)
-
-    cd api-node
-    ```
-
-2.  Install dependencies:
-
-    ```bash
-    npm install  # or yarn install
-    ```
-
-3.  Database setup:
-
-    - Explain how to set up the database connection. This is _crucial_. For example:
-      - "Create a database named `your_database_name` in your database system."
-      - "Configure the database connection details in the `.env` file." (If you're using environment variables – recommended). Provide a `.env.example` for users to copy and adapt.
-      - "Run Prisma migrations: `npx prisma migrate dev`"
-
-### Running the API
-
-```bash
-npm run dev  # or yarn dev
-```
-
 # User Management API
 
-This API provides endpoints for managing users using Express and Prisma.
+This API provides endpoints for managing users, including retrieving, creating, updating, and deleting user records. It's built using Express.js and Prisma Client. It's designed to be used with a frontend application that handles user authentication (as this API focuses on user _management_ after authentication). It assumes you have a Prisma schema defined with a `User` model that includes fields for `name`, `email`, `telephone`, and `password` (which is always hashed before being stored).
 
-## Endpoints
+## Authentication
 
-### 1. GET /users
+**Important:** This API _does not_ handle user authentication directly. It assumes that a separate authentication process (e.g., using JWTs as shown in the related `User.js` controller file) has already taken place, and that the `authenticateToken` middleware is used to protect these routes. This middleware is expected to populate `req.user` with the authenticated user's information.
 
-- **Description:** Retrieves a list of users. Supports filtering by name, email, or phone number.
-- **Method:** `GET`
-- **Parameters (Query):**
-  - `name` (string, optional): Filters users by name (case-insensitive, partial match).
-  - `email` (string, optional): Filters users by email (case-insensitive, partial match).
-  - `phoneNumber` (string, optional): Filters users by phone number (partial match).
-- **Response:**
+## User Controller (`controllers/User.js`)
 
-  - `200 OK`: Returns an array of user objects (JSON). Example:
+This module provides core user functions used by the API routes:
 
-    ```json
-    [
-      {
-        "id": "cll4mwkfz0000000000000000",
-        "name": "John Doe",
-        "email": "[email address removed]",
-        "phoneNumber": "123-456-7890"
-      },
-      {
-        "id": "cll4mwl000001000000000001",
-        "name": "Jane Doe",
-        "email": "[email address removed]",
-        "phoneNumber": "987-654-3210"
-      }
-    ]
-    ```
+- **`register(userData)`:** Registers a new user.
+  - Hashes the password using bcrypt before storing it.
+  - **Parameters:**
+    - `userData` (object): User data.
+    - `userData.name` (string): User's name.
+    - `userData.email` (string): User's email.
+    - `userData.telephone` (string): User's telephone.
+    - `userData.password` (string): User's password (will be hashed).
+  - **Returns:** `Promise<object|null>`: Created user object, or `null` if error.
+- **`login(credentials)`:** Logs in an existing user.
+  - Compares the provided password with the stored hash using bcrypt.
+  - **Parameters:**
+    - `credentials` (object): User credentials.
+    - `credentials.email` (string): User's email.
+    - `credentials.password` (string): User's password.
+  - **Returns:** `Promise<object|null>`: User object if login successful, or `null`.
 
-  - `500 Internal Server Error`: If there's an error retrieving users. Example:
+## API Endpoints
 
-    ```json
-    {
-      "error": "Failed to get users"
-    }
-    ```
+### Authentication Routes (`routes/userRoutes.js`)
 
-### 2. GET /users/:id
+This file defines the authentication-related routes (registration and login) and serves the main application page.
 
-- **Description:** Retrieves a single user by their ID.
-- **Method:** `GET`
-- **Parameters (Path):**
-  - `id` (string, required): The unique ID of the user.
-- **Response:**
+- **GET /**: Serves the main application page (`index.html`).
+- **POST /register**: Registers a new user. Uses the `register` function from the controller.
+  - **Request Body (JSON):** `name`, `email`, `telephone`, `password` (all required).
+  - **Returns:** `201 Created` with the new user object, or `500 Internal Server Error`.
+- **POST /login**: Logs in a user and generates a JWT token. Uses the `login` function from the controller.
+  - **Request Body (JSON):** `email`, `password` (both required).
+  - **Returns:** `200 OK` with a JWT `token`, or `401 Unauthorized` if login fails, or `500 Internal Server Error`.
+- **GET /protected**: A protected route that requires a valid JWT. Demonstrates how to use the `authenticateToken` middleware.
+  - **Returns:** `200 OK` with a welcome message and the user object, or `401 Unauthorized` or `403 Forbidden` if authentication fails.
 
-  - `200 OK`: Returns the user object (JSON). Example:
+### User Management Routes (`routes/userManagementRoutes.js`)
 
-    ```json
-    {
-      "id": "cll4mwkfz0000000000000000",
-      "name": "John Doe",
-      "email": "[email address removed]",
-      "phoneNumber": "123-456-7890"
-    }
-    ```
+These routes are protected by the `authenticateToken` middleware. All routes are prefixed with `/users`.
 
-  - `404 Not Found`: If the user with the given ID is not found. Example:
+- **GET /users**: Retrieves a list of users. Supports optional filtering.
+  - **Query Parameters:** `name`, `email`, `telephone` (all optional, case-insensitive, partial match).
+  - **Returns:** `200 OK` with an array of user objects, or `500 Internal Server Error`.
+- **GET /users/:id**: Retrieves a single user by ID.
+  - **Parameters:** `id` (string, required).
+  - **Returns:** `200 OK` with the user object, `404 Not Found` if not found, or `500 Internal Server Error`.
+- **POST /users**: Creates a new user.
+  - **Request Body (JSON):** `name`, `email`, `telephone`, `password` (all required).
+  - **Returns:** `201 Created` with the new user object, or `500 Internal Server Error`.
+- **PUT /users/:id**: Updates an existing user (excluding the password). **Important:** Password updates should be handled via a separate "change password" endpoint for security reasons.
+  - **Parameters:** `id` (string, required).
+  - **Request Body (JSON):** `name`, `email`, `telephone` (all optional).
+  - **Returns:** `200 OK` with the updated user object, `404 Not Found` if not found, or `500 Internal Server Error`.
+- **DELETE /users/:id**: Deletes a user.
+  - **Parameters:** `id` (string, required).
+  - **Returns:** `204 No Content` on success, or `500 Internal Server Error`.
 
-    ```json
-    {
-      "error": "User not found"
-    }
-    ```
+## Error Handling
 
-  - `500 Internal Server Error`: If there's an error retrieving the user. Example:
+The API returns JSON error responses in the format `{ error: "message" }` for all error scenarios. More detailed error information is logged to the server console.
 
-    ```json
-    {
-      "error": "Failed to get user"
-    }
-    ```
+## Dependencies
 
-### 3. POST /users
+- `express`: For creating the API server.
+- `bcryptjs`: For hashing passwords.
+- `jsonwebtoken`: For generating JWTs.
+- `@prisma/client`: For database interaction.
 
-- **Description:** Creates a new user.
-- **Method:** `POST`
-- **Request Body:** A JSON object representing the new user. Example:
+## Setup
 
-  ```json
-  {
-    "name": "New User",
-    "email": "[email address removed]",
-    "phoneNumber": "555-123-4567"
-  }
-  ```
+1.  Clone the repository.
+2.  Install the dependencies: `npm install` or `yarn install`.
+3.  Configure the Prisma Client to connect to your database.
+4.  Set up environment variables, especially `JWT_SECRET`.
+5.  Start the server: `npm start` or `yarn start`.
 
-- **Response:**
+## Contributing
 
-  - `201 Created`: Returns the newly created user object (JSON). Example:
-
-    ```json
-    {
-      "id": "cll4n00000002000000000002", // New ID generated by the database
-      "name": "New User",
-      "email": "[email address removed]",
-      "phoneNumber": "555-123-4567"
-    }
-    ```
-
-  - `500 Internal Server Error`: If there's an error creating the user. Example:
-
-    ```json
-    {
-      "error": "Failed to create user"
-    }
-    ```
-
-### 4. PUT /users/:id
-
-- **Description:** Updates an existing user.
-- **Method:** `PUT`
-- **Parameters (Path):**
-  - `id` (string, required): The unique ID of the user to update.
-- **Request Body:** A JSON object representing the updated user data. Example:
-
-  ```json
-  {
-    "name": "Updated User Name",
-    "email": "[email address removed]"
-  }
-  ```
-
-- **Response:**
-
-  - `200 OK`: Returns the updated user object (JSON). Example:
-
-    ```json
-    {
-      "id": "cll4mwkfz0000000000000000",
-      "name": "Updated User Name",
-      "email": "[email address removed]",
-      "phoneNumber": "123-456-7890" // phoneNumber remains unchanged
-    }
-    ```
-
-  - `500 Internal Server Error`: If there's an error updating the user. Example:
-
-    ```json
-    {
-      "error": "Failed to update user"
-    }
-    ```
-
-### 5. DELETE /users/:id
-
-- **Description:** Deletes a user.
-- **Method:** `DELETE`
-- **Parameters (Path):**
-  - `id` (string, required): The unique ID of the user to delete.
-- **Response:**
-
-  - `204 No Content`: Indicates successful deletion. No response body is typically sent.
-  - `500 Internal Server Error`: If there's an error deleting the user. Example:
-
-    ```json
-    {
-      "error": "Failed to delete user"
-    }
-    ```
-
-### 6. GET /
-
-- **Description:** Welcome route. Provides a basic welcome message.
-- **Method:** `GET`
-- **Response:**
-
-  - `200 OK`: Returns a welcome message (text). Example:
-
-    ```
-    Welcome to the Prisma API
-    ```
-
-## General Notes
-
-- All routes related to users (`/users`, `/users/:id`) operate on user data.
-- The API uses JSON for request and response bodies.
-- Error responses are also in JSON format, typically including an `error` field with a description of the error.
-- The API uses standard HTTP status codes to indicate the success or failure of requests.
-- The search functionality for `GET /users` is case-insensitive for name and email.
+Contributions are welcome! Please open an issue or submit a pull request.
