@@ -2,28 +2,8 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"; // Although imported, it's not used in this snippet. Consider removing if not needed elsewhere.
 import { register, login } from "../controllers/User.js"; // Ensure this path is correct.
-import path from "path"; // Import the 'path' module
-import { fileURLToPath } from "url"; // Import for __dirname
 
 const router = express.Router();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/**
- * @description Serves the main application page (index.html).
- * @route GET /
- * @returns {HTML} - The index.html file.
- * @throws {500} - If there is an error serving the file.
- */
-router.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "./../index.html"), (err) => {
-    if (err) {
-      console.error("Error sending index.html:", err);
-      res.status(500).send("Error loading page"); // Consider a more user-friendly error response
-    }
-  });
-});
 
 /**
  * @description Registers a new user.

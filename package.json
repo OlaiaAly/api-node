@@ -7,10 +7,10 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "node --watch ./index.js",
+    "dev": "node --watch ./src/index.js",
     "postinstall": "prisma generate",
-    "build": "npx prisma generate && node ./index.js",
-    "start": "node ./index.js"
+    "build": "npx prisma generate && node ./src/index.js",
+    "start": "node ./src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +23,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "prisma": "^6.3.0"
